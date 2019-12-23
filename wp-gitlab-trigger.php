@@ -114,11 +114,6 @@
      * @since 1.0.0
      **/
      public function run_the_mighty_javascript() {
-         // TODO: split up javascript to allow to be dynamically imported as needed
-         // $screen = get_current_screen();
-         // if ( $screen && $screen->parent_base != 'developer_webhook_fields' && $screen->parent_base != 'deploy_webhook_fields_sub' ) {
-         //     return;
-         // }
          ?>
          <script type="text/javascript" >
          console.log('run_the_mighty_javascript');
@@ -126,14 +121,27 @@
              var _this = this;
              $( ".webhook-deploy_page_developer_webhook_fields td > input" ).css( "width", "100%");
 
-             var webhook_url = '<?php echo(get_option('webhook_address')) ?>';
-             var netlify_user_agent = '<?php echo(get_option('netlify_user_agent')) ?>';
-             var netlify_api_key = '<?php echo(get_option('netlify_api_key'))?>'
-             var netlify_site_id = '<?php echo(get_option('netlify_site_id')) ?>';
+
+             /*
+             $gitlab_branch = get_option('wpgt_option_branch');
+              $gitlab_username = get_option('wpgt_option_username');
+              $gitlab_password = get_option('wpgt_option_password');
+              // if environment variables are set, then trigger static build
+              if ($gitlab_branch && $gitlab_username && $gitlab_password) {
+                wp_remote_post('https://gitlab.com/api/v4/projects/'.$gitlab_username.'/ref/'.$gitlab_branch.'/trigger/pipeline?token='.$gitlab_password);
+              }
+              */
+             //var webhook_url = '<?php echo(get_option('webhook_address')) ?>';
+             var wpgt_option_branch = '<?php echo(get_option('wpgt_option_branch')) ?>';
+             var wpgt_option_username = '<?php echo(get_option('wpgt_option_username'))?>'
+             var wpgt_option_password = '<?php echo(get_option('wpgt_option_password')) ?>';
+
+             var webhook_url = 'https://gitlab.com/api/v4/projects/'+wpgt_option_username+'/ref/'+ wpgt_option_branch +'/trigger/pipeline?token='+wpgt_option_password;
 
              var netlifySites = "https://api.netlify.com/api/v1/sites/";
              var req_url = netlifySites + netlify_site_id + '/deploys?access_token=' + netlify_api_key;
 
+             /*
              function getDeployData() {
                  $.ajax({
                      type: "GET",
@@ -196,16 +204,6 @@
                      current_state = "Success"
                  }
 
-                 /*
-                 $gitlab_branch = get_option('option_branch');
-                  $gitlab_username = get_option('option_username');
-                  $gitlab_password = get_option('option_password');
-                  // if environment variables are set, then trigger static build
-                  if ($gitlab_branch && $gitlab_username && $gitlab_password) {
-                    wp_remote_post('https://gitlab.com/api/v4/projects/'.$gitlab_username.'/ref/'.$gitlab_branch.'/trigger/pipeline?token='.$gitlab_password);
-                  }
-                  */
-
                  if (data.state !== 'ready') {
                      $( "#deploy_finish_time" ).html( "Building Site" );
                      $( "#build_img" ).attr("src", `https://api.netlify.com/api/v1/badges/${ netlify_site_id }/deploy-status`);
@@ -237,15 +235,18 @@
 
 
              }
+             */
 
              function gitlabTrigger() {
                  return $.ajax({
                      type: "POST",
                      url: webhook_url,
                      dataType: "json",
+                     /*
                      header: {
                          "User-Agent": netlify_user_agent
                      }
+                     */
                  });
              }
 
@@ -262,16 +263,17 @@
              */
 
              $("#build_button").on("click", function(e) {
+                e.preventDefault();
 
                  // hide deploy
+                 /*
                  $('#build_img_link').attr('href', '');
                  $('#build_img').attr('src', '');
                  $('#deploy_id').html('');
                  $('#deploy_finish_time').html('');
                  $('#deploy_ssl_url').html('');
                  $('#deploy_preview').html('');
-
-                 e.preventDefault();
+                 */
 
                  gitlabTrigger().done(function() {
                      console.log("success")
@@ -398,40 +400,32 @@
      * @since 1.0.0
      **/
      public function setup_developer_fields() {
-         $fields = array(
-           array(
-             'uid' => 'webhook_address',
-             'label' => __('Webhook Build URL', 'wp-gitlab-trigger-deploy'),
-             'section' => 'developer_section',
-             'type' => 'text',
-                 'placeholder' => 'https://',
-                 'default' => '',
-             ),
-             array(
-             'uid' => 'netlify_site_id',
-             'label' => __('Netlify site_id', 'wp-gitlab-trigger-deploy'),
-             'section' => 'developer_section',
-             'type' => 'text',
-                 'placeholder' => 'e.g. 5b8e927e-82e1-4786-4770-a9a8321yes43',
-                 'default' => '',
-             ),
-             array(
-             'uid' => 'netlify_api_key',
-             'label' => __('Netlify API Key', 'wp-gitlab-trigger-deploy'),
-             'section' => 'developer_section',
-             'type' => 'text',
-                 'placeholder' => __('GET O-AUTH TOKEN', 'wp-gitlab-trigger-deploy'),
-                 'default' => '',
+       $fields = array(
+         array(
+           'uid' => 'wpgt_option_branch',
+           'label' => __('Branch', 'wp-gitlab-trigger-deploy'),
+           'section' => 'developer_section',
+           'type' => 'text',
+               'placeholder' => __('Gitlab branch', 'wp-gitlab-trigger-deploy'),
+               'default' => '',
            ),
-             array(
-             'uid' => 'netlify_user_agent',
-             'label' => __('User-Agent Site Value', 'wp-gitlab-trigger-deploy'),
-             'section' => 'developer_section',
-             'type' => 'text',
-                 'placeholder' => 'Website Name (and-website-url.netlify.com)',
-                 'default' => '',
-           )
-         );
+           array(
+           'uid' => 'wpgt_option_username',
+           'label' => __('Username', 'wp-gitlab-trigger-deploy'),
+           'section' => 'developer_section',
+           'type' => 'text',
+               'placeholder' => __('Your username', 'wp-gitlab-trigger-deploy'),
+               'default' => '',
+           ),
+           array(
+           'uid' => 'wpgt_option_password',
+           'label' => __('Passord', 'wp-gitlab-trigger-deploy'),
+           'section' => 'developer_section',
+           'type' => 'password',
+               'placeholder' => __('Your password', 'wp-gitlab-trigger-deploy'),
+               'default' => '',
+         ),
+       );
        foreach( $fields as $field ){
            add_settings_field( $field['uid'], $field['label'], array( $this, 'field_callback' ), 'developer_webhook_fields', $field['section'], $field );
              register_setting( 'developer_webhook_fields', $field['uid'] );
