@@ -1,2 +1,2 @@
-# wp-gitlab-trigger
-Wp Admin interface for trigger Gitlab Hook
+# WP Gitlab Trigger
+WordPress admin interface for trigger Gitlab Hook
