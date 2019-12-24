@@ -123,120 +123,20 @@
 
 
              /*
-             $gitlab_branch = get_option('wpgt_option_branch');
-              $gitlab_username = get_option('wpgt_option_username');
-              $gitlab_password = get_option('wpgt_option_password');
+             $gitlab_branch = get_option('wpgt_option_project');
+              $gitlab_username = get_option('wpgt_option_refname');
+              $gitlab_password = get_option('wpgt_option_token');
               // if environment variables are set, then trigger static build
               if ($gitlab_branch && $gitlab_username && $gitlab_password) {
                 wp_remote_post('https://gitlab.com/api/v4/projects/'.$gitlab_username.'/ref/'.$gitlab_branch.'/trigger/pipeline?token='.$gitlab_password);
               }
               */
              //var webhook_url = '<?php echo(get_option('webhook_address')) ?>';
-             var wpgt_option_branch = '<?php echo(get_option('wpgt_option_branch')) ?>';
-             var wpgt_option_username = '<?php echo(get_option('wpgt_option_username'))?>'
-             var wpgt_option_password = '<?php echo(get_option('wpgt_option_password')) ?>';
+             var wpgt_option_PROJECT = '<?php echo(get_option('wpgt_option_project')) ?>';
+             var wpgt_option_REFNAME = '<?php echo(get_option('wpgt_option_refname'))?>'
+             var wpgt_option_TOKEN = '<?php echo(get_option('wpgt_option_token')) ?>';
 
-             var webhook_url = 'https://gitlab.com/api/v4/projects/'+wpgt_option_username+'/ref/'+ wpgt_option_branch +'/trigger/pipeline?token='+wpgt_option_password;
-
-             var netlifySites = "https://api.netlify.com/api/v1/sites/";
-             var req_url = netlifySites + netlify_site_id + '/deploys?access_token=' + netlify_api_key;
-
-             /*
-             function getDeployData() {
-                 $.ajax({
-                     type: "GET",
-                     url: req_url
-                 }).done(function(data) {
-                     appendStatusData(data[0]);
-                 })
-                 .fail(function() {
-                     console.error("error res => ", this)
-                 })
-             }
-
-             function getAllPreviousBuilds() {
-                 $.ajax({
-                     type: "GET",
-                     url: req_url
-                 }).done(function(data) {
-                     var buildNo = 1;
-                     data.forEach(function(item) {
-                         var deploy_preview_url = '';
-                         if (data.deploy_ssl_url) {
-                             deploy_preview_url = data.deploy_ssl_url
-                         } else {
-                             deploy_preview_url = data.deploy_url
-                         }
-                         $('#previous_deploys_container').append(
-                             '<li style="margin: 0 auto 16px"><hr><h3>No: ' + buildNo + ' - ' + item.name + '</h3><h4>Created at: ' +  new Date(item.created_at.toString()).toLocaleString() + '</h4><h4>' + item.title + '</h4><p>Id: ' + item.id + '</p><p>Deploy Time: ' + item.deploy_time + '</p><p>Branch: ' + item.branch + '</p><a href="' + item.deploy_preview_url + '">Preview Build</a></li>'
-                         );
-                         buildNo++;
-                     })
-                 })
-                 .fail(function() {
-                     console.error("error res => ", this)
-                 })
-             }
-
-             function runSecondFunc() {
-                 $.ajax({
-                     type: "GET",
-                     url: req_url
-                 }).done(function(data) {
-                     $( "#build_img_link" ).attr("href", `${data.admin_url}`);
-                     // $( "#build_img" ).attr("src", `https://api.netlify.com/api/v1/badges/${ netlify_site_id }/deploy-status`);
-                 })
-                 .fail(function() {
-                     console.error("error res => ", this)
-                 })
-
-                 // $( "#build_status" ).html('Deploy building');
-             }
-
-             function appendStatusData(data) {
-                 var d = new Date();
-                 var p = d.toLocaleString();
-                 var yo = new Date(data.created_at);
-                 var created = yo.toLocaleString();
-                 var current_state = data.state;
-
-                 if (data.state === 'ready') {
-                     current_state = "Success"
-                 }
-
-                 if (data.state !== 'ready') {
-                     $( "#deploy_finish_time" ).html( "Building Site" );
-                     $( "#build_img" ).attr("src", `https://api.netlify.com/api/v1/badges/${ netlify_site_id }/deploy-status`);
-                     var dots = window.setInterval( function() {
-                         var wait = document.getElementById('deploy_loading');
-                         if ( wait.innerHTML.length >= 3 ) {
-                             wait.innerHTML = "";
-                         }
-                         else {
-                             wait.innerHTML += ".";
-                         }
-                     },
-                     500);
-                 } else {
-                     var deploy_preview_url = '';
-
-                     if (data.deploy_ssl_url) {
-                         deploy_preview_url = data.deploy_ssl_url
-                     } else {
-                         deploy_preview_url = data.deploy_url
-                     }
-
-                     $( "#deploy_id" ).html( "ID: " + data.id + "" );
-                     $( "#deploy_finish_time" ).html( "Build Completed: " + created );
-                     $( "#build_img" ).attr("src", `https://api.netlify.com/api/v1/badges/${ netlify_site_id }/deploy-status`);
-                     $( "#deploy_ssl_url" ).html( "Deploy URL: <a href='" + deploy_preview_url + "'>" + data.deploy_ssl_url + "</a>");
-                     $( "#deploy_preview" ).html( `<iframe style="width: 100%; min-height: 540px" id="frameLeft" src="${deploy_preview_url}"/>`)
-                 }
-
-
-             }
-             */
-
+             var webhook_url = 'https://gitlab.com/api/v4/projects/'+wpgt_option_PROJECT+'/ref/'+ wpgt_option_REFNAME +'/trigger/pipeline?token='+wpgt_option_TOKEN;
              function gitlabTrigger() {
                  return $.ajax({
                      type: "POST",
@@ -250,31 +150,10 @@
                  });
              }
 
-             /*
-             $("#status_button").on("click", function(e) {
-                 e.preventDefault();
-                 getDeployData();
-             });
-
-             $("#previous_deploys").on("click", function(e) {
-                 e.preventDefault();
-                 getAllPreviousBuilds();
-             });
-             */
-
              $("#build_button").on("click", function(e) {
                 e.preventDefault();
 
                  // hide deploy
-                 /*
-                 $('#build_img_link').attr('href', '');
-                 $('#build_img').attr('src', '');
-                 $('#deploy_id').html('');
-                 $('#deploy_finish_time').html('');
-                 $('#deploy_ssl_url').html('');
-                 $('#deploy_preview').html('');
-                 */
-
                  gitlabTrigger().done(function() {
                      console.log("success")
                      getDeployData();
@@ -402,27 +281,27 @@
      public function setup_developer_fields() {
        $fields = array(
          array(
-           'uid' => 'wpgt_option_branch',
-           'label' => __('Branch', 'wp-gitlab-trigger-deploy'),
+           'uid' => 'wpgt_option_project',
+           'label' => __('Project ID', 'wp-gitlab-trigger-deploy'),
            'section' => 'developer_section',
            'type' => 'text',
-               'placeholder' => __('Gitlab branch', 'wp-gitlab-trigger-deploy'),
+               'placeholder' => __('Project ID', 'wp-gitlab-trigger-deploy'),
                'default' => '',
            ),
            array(
-           'uid' => 'wpgt_option_username',
-           'label' => __('Username', 'wp-gitlab-trigger-deploy'),
+           'uid' => 'wpgt_option_refname',
+           'label' => __('Ref Name', 'wp-gitlab-trigger-deploy'),
            'section' => 'developer_section',
            'type' => 'text',
-               'placeholder' => __('Your username', 'wp-gitlab-trigger-deploy'),
+               'placeholder' => __('Ref name', 'wp-gitlab-trigger-deploy'),
                'default' => '',
            ),
            array(
-           'uid' => 'wpgt_option_password',
-           'label' => __('Passord', 'wp-gitlab-trigger-deploy'),
+           'uid' => 'wpgt_option_token',
+           'label' => __('TOKEN', 'wp-gitlab-trigger-deploy'),
            'section' => 'developer_section',
            'type' => 'password',
-               'placeholder' => __('Your password', 'wp-gitlab-trigger-deploy'),
+               'placeholder' => __('Pipeline Trigger token', 'wp-gitlab-trigger-deploy'),
                'default' => '',
          ),
        );
